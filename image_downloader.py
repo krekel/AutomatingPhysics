@@ -15,7 +15,6 @@ def image_scraper(session, url):
     soup = BeautifulSoup(response.content, "html.parser")
     # Return all the names of the images stored in the problems file
     names = [link.get("href") for link in soup.find_all('a')[5:]]
-    print(names)
     return names
 
 
@@ -23,12 +22,10 @@ def save_image(filename, path, url, directories, pattern, session):
     for x in filename:
         curr_chapter = re.match(pattern, x).group()
 
-        print(curr_chapter)
         # Download Image
         content = session.get(url+x)
         n_path = os.path.join(path, directories[curr_chapter])
         n_path += x
-        print(n_path)
 
         # Save image
         with open(n_path, "wb") as f:
@@ -44,9 +41,6 @@ def create_directories(filename, path, pattern):
         if chapter_number not in directories.keys():
             directories[chapter_number] = dir_name + chapter_number + "/"
             os.makedirs(path+directories[chapter_number])
-
-    print(list(directories.items()))
-    print(list(directories))
 
     return directories
 
