@@ -1,40 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-import time
 import re
 
 
-def make_request(url):
-    response = requests.get(url, stream=True)
-    return response
+def create_session():
+    session = requests.session()
+    return session
 
 
-def image_scraper(content):
+def image_scraper(session, url):
     """ Retrieves the name of all the images in the file. """
-    soup = BeautifulSoup(content, "html.parser")
+    response = session.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
     # Return all the names of the images stored in the problems file
     names = [link.get("href") for link in soup.find_all('a')[5:]]
+    print(names)
     return names
 
 
-def save_image(filename, path, url, directories, pattern):
+def save_image(filename, path, url, directories, pattern, session):
+    for x in filename:
+        curr_chapter = re.match(pattern, x).group()
 
-    for k, v in directories.items():
-        n_path = path + v
-        curr_match = k
+        print(curr_chapter)
+        # Download Image
+        content = session.get(url+x)
+        n_path = os.path.join(path, directories[curr_chapter])
+        n_path += x
+        print(n_path)
 
-        for name in filename:
-            chapter_number = re.match(pattern, name).group()
-            if chapter_number == curr_match:
-                content = make_request(url+name)   # Get image
-                path = os.path.join(n_path, name)  # Adds the filename to the path
-                with open(path, "wb") as f:
-                    for image in content.iter_content(chunk_size=5000):
-                        f.write(image)
-            else:
-                break
-            time.sleep(0.5)
+        # Save image
+        with open(n_path, "wb") as f:
+            f.write(content.content)
 
 
 def create_directories(filename, path, pattern):
@@ -47,6 +45,9 @@ def create_directories(filename, path, pattern):
             directories[chapter_number] = dir_name + chapter_number + "/"
             os.makedirs(path+directories[chapter_number])
 
+    print(list(directories.items()))
+    print(list(directories))
+
     return directories
 
 
@@ -55,10 +56,10 @@ def main():
     url = "http://fisica.uprb.edu/cursos/FISI3011KH1/problemas/"
     pattern = r'^\d{0,2}'
 
-    response = make_request(url)
-    filename = image_scraper(response.content)
+    session = create_session()
+    filename = image_scraper(session, url)
     directories = create_directories(filename, path, pattern)
-    save_image(filename, path, url, directories, pattern)
+    save_image(filename, path, url, directories, pattern, session)
 
 if __name__ == "__main__":
     main()
