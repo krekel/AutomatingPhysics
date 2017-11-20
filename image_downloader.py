@@ -31,6 +31,8 @@ def save_image(filename, path, url, directories, pattern, session):
         with open(n_path, "wb") as f:
             f.write(content.content)
 
+    content.close()
+
 
 def create_directories(filename, path, pattern):
     dir_name = "Chapter_"
