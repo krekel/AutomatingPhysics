@@ -4,12 +4,8 @@ import re
 import os
 
 
-def main():
-    path = "/Users/luis-a7x/Desktop/Physics/Presentations/"
-    url = "http://fisica.uprb.edu/cursos/FISI3011KH1/"
-
-    create_folder(path)
-    download_pdf(url, path)
+PATH = "/Users/luis-a7x/Desktop/Physics/Presentations/"
+URL = "http://fisica.uprb.edu/cursos/FISI3011KH1/"
 
 
 def download_pdf(url, path):
@@ -29,12 +25,12 @@ def download_pdf(url, path):
             if session.status_code == 200:
                 with open(path+file, 'wb') as f:
                     f.write(session.content)
-        session.close()
+        print("New files added")
 
 
 def create_folder(path):
     if not os.path.exists(path):
-        os.makedir(path)
+        os.makedirs(path)
     else:
         print("Directory exists")
 
@@ -47,4 +43,5 @@ def make_request(url, session=False):
     return r
 
 if __name__ == "__main__":
-    main()
+    create_folder(PATH)
+    download_pdf(URL, PATH)
